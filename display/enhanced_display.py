@@ -1,4 +1,4 @@
-# Class used to render onto a SSD1306 Pico Pi Display with the following enhancements:
+# Class used to render onto a SSD1306 Display with the following enhancements:
 #  - Render different sized fonts using the packed_font module.
 #  - Detects if a display is present and performs NOPs if not present (i.e. code will still run without a display connected)
 #  - Take a screenshot of the display and save it to a .bmp file.
@@ -7,23 +7,26 @@
 #
 # MIT License (see the accompanying license file)
 #
-# https://github.com/mark-gladding/packed-font
+# Original (Raspbery Pico): https://github.com/mark-gladding/packed-font
+# This version (ESP32 support): https://github.com/elcodedocle/packed-font-esp32
 #
 
-from PiicoDev_SSD1306 import *
 import math
 import packed_font
 import struct
+import ssd1306 # from https://github.com/micropython/micropython-lib/blob/master/micropython/drivers/display/ssd1306/ssd1306.py
+from machine import I2C, Pin
 
 class Enhanced_Display:
-    def __init__(self, address=0x3C,bus=None, freq=None, sda=None, scl=None, asw=None):
-        self._display = create_PiicoDev_SSD1306(address, bus, freq, sda, scl, asw)
-        self.width = WIDTH
-        self.height = HEIGHT
+    def __init__(self, address=0x3C,bus=None, freq=None, sda=None, scl=None, asw=None, i2c_id=0, width=128, height=64):
+        i2c = I2C(i2c_id, scl=scl or Pin(22), sda=sda or Pin(21), freq=400000)
+        self._display = ssd1306.SSD1306_I2C(width, height, i2c)
+        self.width = width
+        self.height = height
         self.is_present = False
         self.selected_font = None
 
-        if self._display.comms_err:
+        if not self._display:
             print('Display not detected.')
             self._display = None
         else:
@@ -37,7 +40,7 @@ class Enhanced_Display:
 
         Args:
             font_name (string): Name of the font, without the .pf extension.
-        """    
+        """
         if self.is_present:
             packed_font.load_font(font_name)
 
@@ -46,10 +49,10 @@ class Enhanced_Display:
 
         Args:
             font_name_list (list[string]): A list of font names (without the .pf extension) to load.
-        """        
+        """
         if self.is_present:
             for font_name in font_name_list:
-                packed_font.load_font(font_name)        
+                packed_font.load_font(font_name)
 
     def unload_all_fonts(self):
         """ Unload all fonts and select the built in font as the current font."""
@@ -62,7 +65,7 @@ class Enhanced_Display:
 
         Args:
             font_name (string): Name of the font to select or None to select the built in font.
-        """    
+        """
         self.selected_font = font_name
 
     def get_text_size(self, text):
@@ -79,8 +82,8 @@ class Enhanced_Display:
             packed_font.select_font(self.selected_font)
             return packed_font.get_text_size(text)
         return 0, 0
-        
-    def text(self, text, x, y, horiz_align=0, vert_align=0, max_width=WIDTH, max_height=HEIGHT, c=1):
+
+    def text(self, text, x, y, horiz_align=0, vert_align=0, max_width=None, max_height=None, c=1):
         """Render a text string to the display in the currently selected font, with optional alignment.
 
         Args:
@@ -92,14 +95,16 @@ class Enhanced_Display:
             max_width (int, optional): Width of the box to align text horizontally within. Defaults to display width.
             max_height (int, optional): Height of the box to align text vertically within. Defaults to display height.
             c (int, optional): Color to render text in. Defaults to 1.
-        """    
+        """
+        effective_max_width = max_width or self.width
+        effective_max_height = max_height or self.height
         if self.is_present:
             packed_font.select_font(self.selected_font)
-            packed_font.text(self._display, text, x, y, max_width, horiz_align, max_height, vert_align, c)
+            packed_font.text(self._display, text, x, y, effective_max_width, horiz_align, effective_max_height, vert_align, c)
 
     def clear(self):
         """Clear the display and show the blank screen.
-        """        
+        """
         if self.is_present:
             self._display.fill(0)
             self._display.show()
@@ -109,9 +114,9 @@ class Enhanced_Display:
 
         Args:
             filename (string): The name of the file to save the screenshot to (e.g. screenshot.bmp)
-        """        
+        """
         if self.is_present:
-        
+
             # Rotate display buffer bytes into rows of bytes
             rows = []
             for y in range(self.height):
@@ -148,7 +153,7 @@ class Enhanced_Display:
         return (b"BM" + s + b"\x00\x00\x00\x00\x20\x00\x00\x00\x0C\x00\x00\x00" +
                 lh(width) + lh(h) + b"\x01\x00\x01\x00\x00\x00\x00\xff\xff\xff" +
                 b"".join([bytes(row+pad) for row in reversed(rows)]))
-    
+
     # --------------- Frame buffer functions --------------
 
     def fill(self, c=0):
@@ -224,10 +229,3 @@ class Enhanced_Display:
     def updateGraph2D(self, graph, value):
         if self.is_present:
             self._display.updateGraph2D(graph,value)
-
-
-
-
-    
-
-

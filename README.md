@@ -1,5 +1,5 @@
 # Packed Font
-## Memory efficient MicroPython fonts for the Pico Pi and SSD1306 OLED Display
+## Memory efficient MicroPython fonts for SSD1306 OLED Display
 
 MicroPython comes with an 8 x 8 pixel font which allows for a surprising amount of text to be displayed on the tiny OLED display. However the font is very small, especially for those of us getting older.  
 
@@ -13,7 +13,7 @@ A _Packed Font_ has the following features:
 
 ## Quick Start
 
-There is an example application in the `./display/` folder which you can copy to your Pico Pi and run using Thonny. It runs through a few different examples of rendering text and icons.
+There is an example application in the `./display/` folder which you can copy to your device and run. It runs through a few different examples of rendering text and icons.
 
 
 | ![Welcome Screen](screenshots/Welcome.bmp) |
@@ -53,14 +53,14 @@ if __name__ == "__main__":
 The above is rendered as follows:
 
 ```python
-    # Display the right aligned text screen
-    display.fill(0)
+# Display the right aligned text screen
+display.fill(0)
 
-    display.text('right, top', 0, 0, 2, 0)
-    display.text('right, center', 0, 0, 2, 1)
-    display.text('right, bottom', 0, 0, 2, 2)
+display.text('right, top', 0, 0, 2, 0)
+display.text('right, center', 0, 0, 2, 1)
+display.text('right, bottom', 0, 0, 2, 2)
 
-    display.show()
+display.show()
 ```
 
 | ![Temperature Screen](screenshots/temperature-screen.bmp) |
@@ -70,23 +70,19 @@ The above is rendered as follows:
 The above screen is rendered as follows:
 
 ```python
-    # Display the Temperature screen
-    display.fill(0)
+# Display the Temperature screen
+display.fill(0)
 
-    display.select_font('digits-30')
-    degrees = '\u00b0'  # Character code for the degrees symbol
-    display.text(f'12.3{degrees}', 0, 0, 1, 1)
-    display.select_font('icons-32')
-    display.text('t', 0, 0, 2)          # The 't' character contains the temperature icon
-    display.select_font(None)           # Select the built in 8 pixel font
-    display.text('Temperature', 0, 0, 1, 2)
+display.select_font('digits-30')
+degrees = '\u00b0'  # Character code for the degrees symbol
+display.text(f'12.3{degrees}', 0, 0, 1, 1)
+display.select_font('icons-32')
+display.text('t', 0, 0, 2)          # The 't' character contains the temperature icon
+display.select_font(None)           # Select the built in 8 pixel font
+display.text('Temperature', 0, 0, 1, 2)
 
-    display.show()
+display.show()
 ```
-
-If you haven't programmed your Pico Pi using Thonny before, here is a great article to get you started.
-
-[How to setup a Raspberry Pi Pico and Code with Thonny](https://core-electronics.com.au/guides/how-to-setup-a-raspberry-pi-pico-and-code-with-thonny/)
 
 
 ## Example Fonts
@@ -122,7 +118,7 @@ It's easy to create custom fonts for use in your own applications. The advantage
 Creating a font from an existing TrueType font on your PC is a two step process.
 
 1. Run the `create-font.py` script to convert a TrueType font into a font definition file (`font_name.json`) and a series of bitmaps (1 per character).
-2. Run the `pack-font.py` script to convert the font definition file and character bitmaps into a single `font_name.pf` packed font file. You can then copy the packed font file onto your Pico Pi for use in your application.
+2. Run the `pack-font.py` script to convert the font definition file and character bitmaps into a single `font_name.pf` packed font file. You can then copy the packed font file onto your device for use in your application.
 
 There are some example PowerShell scripts in the `create/` folder which were used to create the example packed fonts used by the example application.
 

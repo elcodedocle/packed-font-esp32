@@ -1,5 +1,5 @@
 # Script which takes a series of font bitmaps and an associated definition file and
-# creates a packed font file (.pf) for use on a Pico Pi SSD1306 display.
+# creates a packed font file (.pf) for use on a SSD1306 display.
 #
 # It depends on the Pillow (PIL) library, available here: https://pillow.readthedocs.io/en/stable/index.html#
 #

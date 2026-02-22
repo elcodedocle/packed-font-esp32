@@ -1,5 +1,4 @@
-
-# Module for rendering different sized fonts on the SSD1306 Pico Pi Display.
+# Module for rendering different sized fonts on the SSD1306 Display.
 # Fonts are stored in a memory efficient binary format.
 # Fonts can be proportional or monospaced.
 # A font can contain just the characters needed for a specific application.
@@ -83,7 +82,7 @@ def select_font(font_name):
     if _current_font and _current_font['name'] == font_name:
         return
     
-    if not font_name in _loaded_fonts:
+    if font_name not in _loaded_fonts:
         print(f'Cannot select unknown font {font_name}.')
         return
     _current_font = _loaded_fonts[font_name]
@@ -105,7 +104,7 @@ def get_text_size(text):
     default_character = _current_font['default_character']
     width = 0
     height = 0
-    for char in text:
+    for char in str(text):
         try:
             char_definition = characters[char]
         except KeyError:
@@ -147,7 +146,11 @@ def text(display, text, x, y, max_width=0, horiz_align=0, max_height=0, vert_ali
     characters = _current_font['characters']
     default_character = _current_font['default_character']
     data = _current_font['data']
-    for char in text:
+    _display_chars(c, characters, data, default_character, display, text, x, y)
+
+
+def _display_chars(c, characters, data, default_character, display, text: str, x: int, y: int):
+    for char in str(text):
         try:
             char_definition = characters[char]
         except KeyError:
@@ -160,7 +163,7 @@ def text(display, text, x, y, max_width=0, horiz_align=0, max_height=0, vert_ali
             for j in range(width):
                 byte_index = int(j / 8)
                 bit_index = j - byte_index * 8
-                val = data[start_index + i * width_in_bytes + byte_index ]
-                if (val >> (7-bit_index)) & 1:
+                val = data[start_index + i * width_in_bytes + byte_index]
+                if (val >> (7 - bit_index)) & 1:
                     display.pixel(x + j, y + i, c)
         x += width
