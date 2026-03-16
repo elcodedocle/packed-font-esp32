@@ -18,8 +18,9 @@ import ssd1306 # from https://github.com/micropython/micropython-lib/blob/master
 from machine import I2C, Pin
 
 class Enhanced_Display:
-    def __init__(self, address=0x3C,bus=None, freq=None, sda=None, scl=None, asw=None, i2c_id=0, width=128, height=64):
-        i2c = I2C(i2c_id, scl=scl or Pin(22), sda=sda or Pin(21), freq=400000)
+    def __init__(self, address=0x3C,bus=None, freq=None, sda=None, scl=None, asw=None, i2c_id=0, width=128, height=64, i2c=None):
+        if i2c is None:
+            i2c = I2C(i2c_id, scl=scl or Pin(22), sda=sda or Pin(21), freq=400000)
         self._display = ssd1306.SSD1306_I2C(width, height, i2c)
         self.width = width
         self.height = height
